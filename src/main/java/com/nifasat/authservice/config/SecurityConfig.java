@@ -1,5 +1,6 @@
 package com.nifasat.authservice.config;
 
+import com.nifasat.authservice.Producers.UserInfoProducers;
 import com.nifasat.authservice.filters.JwtAuthFilter;
 import com.nifasat.authservice.repository.RefreshTokenRepository;
 import com.nifasat.authservice.repository.UserRepository;
@@ -35,8 +36,8 @@ public class SecurityConfig {
 
 
     @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        return new UserDetailsServiceImpl(userRepository, passwordEncoder);
+    public UserDetailsService userDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserInfoProducers userInfoProducers) {
+        return new UserDetailsServiceImpl(userRepository, passwordEncoder, userInfoProducers);
     }
 
     @Bean

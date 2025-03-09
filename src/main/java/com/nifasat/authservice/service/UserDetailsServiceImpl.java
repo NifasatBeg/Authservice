@@ -1,8 +1,10 @@
 package com.nifasat.authservice.service;
 
+import com.nifasat.authservice.Producers.UserInfoProducers;
 import com.nifasat.authservice.model.CustomUserDetails;
 import com.nifasat.authservice.model.UserInfo;
 import com.nifasat.authservice.model.UserInfoDto;
+import com.nifasat.authservice.model.UserInfoEvent;
 import com.nifasat.authservice.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +33,9 @@ public class UserDetailsServiceImpl implements UserDetailsService
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private final UserInfoProducers userInfoProducers;
 
 
     private static final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
@@ -61,7 +66,14 @@ public class UserDetailsServiceImpl implements UserDetailsService
         String userId = UUID.randomUUID().toString();
         UserInfo user = new UserInfo(userId, userInfoDto.getUsername(), userInfoDto.getPassword(), null, new HashSet<>());
         userRepository.save(user);
-        // pushEventToQueue
+        userInfoProducers.sendEventToKafka(UserInfoEvent
+                .builder()
+                .userId(userId)
+                .firstName(userInfoDto.getFirstName())
+                .lastName(userInfoDto.getLastName())
+                .phoneNumber(userInfoDto.getPhoneNumber())
+                .email(userInfoDto.getEmail())
+                .build());
         return true;
     }
 }
