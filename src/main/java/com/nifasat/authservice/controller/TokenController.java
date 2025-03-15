@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -58,6 +60,15 @@ public class TokenController
                     return jwtResponseDto;
                 }).orElseThrow(() ->new RuntimeException("Refresh Token is not in DB..!!"));
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("auth/v1/ping")
+    public ResponseEntity<String> ping(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null && authentication.isAuthenticated()){
+            return new ResponseEntity<>("Authorized", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Unauthorizeed", HttpStatus.UNAUTHORIZED);
     }
 
 }
