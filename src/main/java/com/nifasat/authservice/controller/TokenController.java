@@ -6,6 +6,7 @@ import com.nifasat.authservice.model.RefreshToken;
 import com.nifasat.authservice.model.RefreshTokenRequestDto;
 import com.nifasat.authservice.service.JwtService;
 import com.nifasat.authservice.service.RefreshTokenService;
+import com.nifasat.authservice.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +33,9 @@ public class TokenController
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     @PostMapping("auth/v1/login")
     public ResponseEntity AuthenticateAndGetToken(@RequestBody AuthRequestDto authRequestDTO){
@@ -66,7 +71,8 @@ public class TokenController
     public ResponseEntity<String> ping(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication != null && authentication.isAuthenticated()){
-            return new ResponseEntity<>("Authorized", HttpStatus.OK);
+            String userId = userDetailsService.getUserId(authentication.getName());
+            return new ResponseEntity<>(userId, HttpStatus.OK);
         }
         return new ResponseEntity<>("Unauthorizeed", HttpStatus.UNAUTHORIZED);
     }
